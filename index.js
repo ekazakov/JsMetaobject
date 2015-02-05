@@ -1,3 +1,5 @@
+var __slice = [].slice;
+
 var StackMaker = (function () {
     return {
         array: [],
@@ -106,4 +108,94 @@ console.log('stackProxy.array:', stackProxy.array);
 console.log('stack.array:', stack.array);
 console.log('stackProxy.isEmpty:', stackProxy.isEmpty());
 
+console.groupEnd();
+
+function meld () {
+    var melded = {},
+        providers = __slice.call(arguments, 0),
+        key,
+        i,
+        provider;
+
+    for (i = 0; i < providers.length; ++i) {
+        provider = providers[i];
+        for (key in provider) {
+            if (provider.hasOwnProperty(key)) {
+                melded[key] = provider[key];
+            }
+        }
+    }
+    return melded;
+}
+
+
+
+console.group('Prevent extension');
+
+function Record (template) {
+    if (Record.prototype.isPrototypeOf(this)) {
+        var struct = this;
+
+        Object.keys(template).forEach(function (key) {
+            Object.defineProperty(struct, key, {
+                enumerable: true,
+                writable: true,
+                value: template[key]
+            });
+        });
+
+        return Object.preventExtensions(struct);
+    } else return new Record(template);
+}
+
+function addCurrency(amount, currency) {
+  "use strict";
+
+  amount.currency = currency;
+  return currency;
+}
+
+var rentAmount = Record({dollars: 420, cents: 0});
+
+console.log('rent amount', rentAmount);
+
+try {
+    addCurrency(rentAmount, "CAD");
+} catch (e) {
+    console.log(e);
+}
+
+function Value (template) {
+
+  if (Value.prototype.isPrototypeOf(this)) {
+    var immutableObject = this;
+
+    Object.keys(template).forEach(function (key) {
+      Object.defineProperty(immutableObject, key, {
+        enumerable: true,
+        writable: false,
+        value: template[key]
+      });
+    });
+    return Object.preventExtensions(immutableObject);
+  }
+  else return new Value(template);
+}
+
+Value.prototype = new Record({});
+
+function copyAmount(to, from) {
+    'use strict';
+
+    to.dollars = from.dollars;
+    to.cents = from.cents;
+}
+
+var rentValue = Value({dollars: 1000, cents: 0});
+
+try {
+    copyAmount(rentValue, rentAmount);
+} catch (e) {
+    console.log(e);
+}
 console.groupEnd();
