@@ -1,5 +1,8 @@
-var encapsulate = require('./encapsulate');
-var composeMetaobjects = require('./compose-meta-objects');
+var chai = require('chai');
+var expect = chai.expect;
+
+var encapsulate = require('../src/encapsulate');
+var composeMetaobjects = require('../src/compose-meta-objects');
 
 
 var HasCareer = encapsulate({
@@ -31,4 +34,9 @@ var IsSelfDescribing = encapsulate({
     }
 });
 
-console.log('Hello!');
+describe('first test', function() {
+    it('test', function() {
+        expect(true).equal(true);
+        expect(2).equal(3);
+    });
+});
