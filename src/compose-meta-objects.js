@@ -1,4 +1,5 @@
 var utils = require('./utils');
+var _ = require('lodash');
 
 var isFunction = utils.isFunction;
 var isUndefined = utils.isUndefined;
@@ -48,10 +49,10 @@ function applyProtocol (resolveds, protocol) {
     }, {});
 }
 
-module.exports = function composeMetaobjects () {
-    var metaobjects = __slice.call(arguments, 0);
+module.exports = function composeMetaobjects (protocol) {
+    var metaobjects = _.slice(arguments);
     var arrays = propertiesToArrays(metaobjects);
     var resolved = resolveUndefineds(arrays);
 
-    return applyProtocol(resolved, orderProtocol);
+    return applyProtocol(resolved, protocol);
 };

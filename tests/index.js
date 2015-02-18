@@ -1,42 +1,68 @@
+var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
-
-var encapsulate = require('../src/encapsulate');
+// var encapsulate = require('../src/encapsulate');
+var orderProtocol = require('../src/order-protocol');
+var orderProtocol2 = require('../src/order-protocol2');
 var composeMetaobjects = require('../src/compose-meta-objects');
 
+var HasAwards = require('../src/objects/has-awards');
+var SingsSongs = require('../src/objects/sings-songs');
 
-var HasCareer = encapsulate({
-    career: function () {
-        return this.chosenCareer;
-    },
-    setCareer: function (career) {
-        this.chosenCareer = career;
-        return this;
-    },
-});
+describe('Tests', function () {
 
-var HasName = encapsulate({
-    setName: function (name) {
-        this._name = name;
-    },
+    describe('AwardWinningSongwriter', function() {
+        var AwardWinningSongwriter;
+        var tracy;
 
-    name: function () {
-        return this._name;
-    }
-});
+        it('create new metaobject', function() {
+            AwardWinningSongwriter = composeMetaobjects(orderProtocol, SingsSongs, HasAwards);
+            expect(AwardWinningSongwriter).ok;
+        });
 
-var IsSelfDescribing = encapsulate({
-    name: undefined,
-    career: undefined,
+        it('create instance', function () {
+            tracy = Object.create(AwardWinningSongwriter);
 
-    description: function () {
-        return this.name() + ' is a ' + this.career();
-    }
-});
+            expect(tracy).ok;
+            tracy = tracy.constructor();
 
-describe('first test', function() {
-    it('test', function() {
-        expect(true).equal(true);
-        expect(2).equal(3);
+            expect(tracy).ok;
+        });
+
+        it('add songs', function () {
+            tracy.addSong('Fast Car');
+            expect(tracy.songs()).eql(['Fast Car']);
+        });
+    });
+
+    describe('Metaobjects dependencies/coupling', function () {
+        var HasName = require('../src/objects/has-name');
+        var HasCareer = require('../src/objects/has-career');
+        var IsSelfDescribing = require('../src/objects/is-self-describing');
+
+        var Careerist = _.assign({}, HasName, HasCareer, IsSelfDescribing);
+        var michael, bewitched;
+
+        beforeEach(function() {
+            michael = Object.create(Careerist);
+            bewitched = Object.create(Careerist);
+        });
+
+
+        it('create meta', function () {
+            michael.setName('Michael Sam');
+            bewitched.setName('Samantha Stephens');
+
+            michael.setCareer('Athlete');
+            bewitched.setCareer('Thaumaturge');
+
+            expect(michael.description()).eql('Michael Sam is a Athlete');
+            expect(bewitched.description()).eql('Samantha Stephens is a Thaumaturge');
+        });
+    });
+
+
+    describe('Subscribe to Songwriter', function () {
+        var Subscribable = {};
     });
 });

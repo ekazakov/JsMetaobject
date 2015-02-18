@@ -3,16 +3,23 @@ var utils = require('./utils');
 
 var methodsOfType = utils.methodsOfType;
 
+var _ = require('lodash');
 var privateStateId = 0;
 
-function createContext (methodReceiver) {
-    var proto = privateMethods.reduce(function (acc, methodName) {
-        acc[methodName] = behaviour[methodName];
+function createContext (methodReceiver, options) {
+    options = _.defaults({
+        behaviour: {},
+        privateMethods: [],
+        dependencies: null,
+    });
+
+    var proto = options.privateMethods.reduce(function (acc, methodName) {
+        acc[methodName] = options.behaviour[methodName];
 
         return acc;
     }, {});
 
-    var innerProxy = proxy(methodReceiver, dependencies, proto);
+    var innerProxy = proxy(methodReceiver, options.dependencies, proto);
 
     return Object.defineProperty(innerProxy, 'self', {
         writable: false,
@@ -21,11 +28,11 @@ function createContext (methodReceiver) {
     });
 }
 
-function getContext (methodReceiver) {
+function getContext (methodReceiver, safekeepingName, options) {
     var context = methodReceiver[safekeepingName];
 
     if (context == null) {
-        context = createContext(methodReceiver);
+        context = createContext(methodReceiver, options);
         Object.defineProperty(methodReceiver, safekeepingName, {
             enumerable: false, writable: false, value: context
         });
@@ -52,7 +59,11 @@ module.exports = function extendWithProxy (baseObject, behaviour) {
         var methodBody = behaviour[methodName];
 
         acc[methodName] = function () {
-            var context = getContext(this);
+            var context = getContext(this, safekeepingName, {
+                behaviour: behaviour,
+                privateMethods: privateMethods,
+                dependencies: dependencies,
+            });
             var result = methodBody.apply(context, arguments);
 
             return (result === context) ? this : result;

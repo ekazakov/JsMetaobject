@@ -1,3 +1,5 @@
+var methodsOfType = require('./utils').methodsOfType;
+
 module.exports = function proxy (baseObject, methods, optionalPrototype) {
     var proxyObject = Object.create(optionalPrototype || null);
 
