@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var chai = require('chai');
 var expect = chai.expect;
-// var encapsulate = require('../src/encapsulate');
+var encapsulate = require('../src/encapsulate');
 var orderProtocol = require('../src/order-protocol');
 var orderProtocol2 = require('../src/order-protocol2');
 var composeMetaobjects = require('../src/compose-meta-objects');
@@ -43,11 +43,12 @@ describe('Tests', function () {
         var Careerist = _.assign({}, HasName, HasCareer, IsSelfDescribing);
         var michael, bewitched;
 
+        console.log('Careerist', Careerist);
+
         beforeEach(function() {
             michael = Object.create(Careerist);
             bewitched = Object.create(Careerist);
         });
-
 
         it('create meta', function () {
             michael.setName('Michael Sam');
@@ -63,6 +64,39 @@ describe('Tests', function () {
 
 
     describe('Subscribe to Songwriter', function () {
-        var Subscribable = {};
+        var Subscribable = require('../src/objects/subscribable');
+        var SongwriterView = require('../src/objects/song-writer-view');
+        var SubscribableSongwriter, sweetBabyJames;
+
+        it('create meta object', function () {
+            SubscribableSongwriter = composeMetaobjects(
+                orderProtocol2,
+                SingsSongs,
+                Subscribable,
+                encapsulate({
+                    notify: undefined,
+                    addSong: function () { this.notify(); }
+                })
+            );
+        });
+
+        it('create instance', function () {
+            sweetBabyJames = Object.create(SubscribableSongwriter).constructor();
+            expect(sweetBabyJames).ok;
+        });
+
+        it('test subscribtion', function () {
+            function spy (data) {
+                expect(data).equal("Taylor has written 'Fire and Rain'");
+            }
+            var jamesView = Object.create(SongwriterView)
+                .constructor(sweetBabyJames, 'Taylor', spy);
+
+            var obj = sweetBabyJames.addSong('Fire and Rain');
+            expect(obj).to.be.equal(sweetBabyJames);
+
+            console.log('obj', obj);
+        });
     });
+
 });

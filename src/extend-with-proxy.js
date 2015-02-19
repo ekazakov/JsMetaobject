@@ -7,10 +7,10 @@ var _ = require('lodash');
 var privateStateId = 0;
 
 function createContext (methodReceiver, options) {
-    options = _.defaults({
+    options = _.defaults(options, {
         behaviour: {},
         privateMethods: [],
-        dependencies: null,
+        dependencies: null
     });
 
     var proto = options.privateMethods.reduce(function (acc, methodName) {
@@ -70,5 +70,5 @@ module.exports = function extendWithProxy (baseObject, behaviour) {
         };
 
         return acc;
-    }, {});
+    }, baseObject);
 };

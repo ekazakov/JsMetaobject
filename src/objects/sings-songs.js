@@ -10,6 +10,7 @@ module.exports = encapsulate({
 
     addSong: function (name) {
         this._songs.push(name);
+        console.log('addSong', this);
         return this;
     },
 
