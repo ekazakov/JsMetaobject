@@ -99,4 +99,42 @@ describe('Tests', function () {
         });
     });
 
+    describe('get object functions', function () {
+        function getObjectMethods (object) {
+            return _(object)
+                .keys()
+                .filter(_.compose(_.isFunction, _.propertyOf(object)))
+                .value()
+            ;
+        }
+
+        it('Should return only objects functions', function () {
+            var obj = {
+                a: _.noop,
+                b: _.noop,
+                c: 1,
+                d: 2
+            };
+
+            expect(getObjectMethods(obj)).eql(['a', 'b']);
+        });
+    });
+
+    describe('Fluent by default', function () {
+        var fluentByDefault = require('../src/fluent-by-default');
+        var FluentSongwriter = fluentByDefault(SingsSongs);
+
+        var hall = Object.create(SingsSongs);
+        var oates = Object.create(FluentSongwriter);
+
+        it('make object fluent', function () {
+            expect(oates.constructor()).equal(oates);
+            expect(oates.addSong('Aaa')).equal(oates);
+        });
+
+        it('not modify source metaobject', function () {
+            hall.constructor();
+            expect(hall.addSong2('Aaa')).to.be.undefined;
+        });
+    });
 });
