@@ -120,6 +120,44 @@ describe('Tests', function () {
         });
     });
 
+    describe('Selectorize', function () {
+        var selectorize, names;
+
+        beforeEach(function () {
+            selectorize = require('../src/selectorize');
+            names = ['max', 'min', 'fooo', 'foo', 'abc123', '_baz', 'baz', 'bar', 'barracude'];
+        });
+
+        it('return matched names (strings)', function () {
+            var select = selectorize(['foo', 'bar', 'baz']);
+
+            expect(names.filter(select)).to.include('foo');
+            expect(names.filter(select)).to.include('bar');
+            expect(names.filter(select)).to.include('baz');
+            expect(names.filter(select).length).to.equal(3);
+        });
+
+        it('return matched names (regexp)', function () {
+            var select = selectorize([/^ba.*/]);
+
+            expect(names.filter(select)).to.include('baz');
+            expect(names.filter(select)).to.include('bar');
+            expect(names.filter(select)).to.include('barracude');
+            expect(names.filter(select).length).to.equal(3);
+        });
+
+        it('return matched names (function)', function () {
+            var select = selectorize([function (value) {
+                return value === 'min' || value === 'max';
+            }]);
+
+            expect(names.filter(select)).to.include('min');
+            expect(names.filter(select)).to.include('max');
+            expect(names.filter(select).length).to.equal(2);
+        });
+    });
+
+
     describe('Fluent by default', function () {
         var fluentByDefault = require('../src/fluent-by-default');
         var FluentSongwriter = fluentByDefault(SingsSongs);
@@ -135,6 +173,29 @@ describe('Tests', function () {
         it('not modify source metaobject', function () {
             hall.constructor();
             expect(hall.addSong2('Aaa')).to.be.undefined;
+        });
+    });
+
+    describe('Logging Songwriter', function () {
+        var decorate = require('../src/decorate');
+        var after = require('../src/utils').after;
+
+        it('decorate method', function () {
+            var logAfter = after(function () { console.log('after'); return true; });
+            var LoggingSongwriter = decorate(logAfter, SingsSongs, 'addSong');
+
+            var taylor = Object.create(LoggingSongwriter);
+            taylor.constructor();
+            expect(taylor.addSong('foo')).to.equal(taylor);
+        });
+
+        it('return result', function () {
+            var logAfter = after(function () { console.log('after'); return true; });
+            var LoggingSongwriter = decorate(logAfter, SingsSongs, 'addSong2');
+
+            var taylor = Object.create(LoggingSongwriter);
+            taylor.constructor();
+            expect(taylor.addSong2('foo')).to.equal(true);
         });
     });
 });
