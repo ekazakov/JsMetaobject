@@ -198,4 +198,19 @@ describe('Tests', function () {
             expect(taylor.addSong2('foo')).to.equal(true);
         });
     });
+
+    describe('Newable', function () {
+        it('works', function () {
+            var Newable = require('../src/newable');
+            var Songwriter = Newable('Songwriter', SingsSongs);
+            var AwardWinningSongwriter = Newable('AwardWinningSongwriter', HasAwards, Songwriter);
+
+            var tracy = new AwardWinningSongwriter();
+            tracy.addSong('Fast Car');
+            tracy.addAward('Grammy');
+
+            expect(tracy.songs()).to.include('Fast Car');
+            expect(tracy.awards()).to.include('Grammy');
+        });
+    });
 });
