@@ -27,10 +27,31 @@ function after (decoration) {
     };
 }
 
+function before (decoration) {
+    return function (methodBody) {
+        return function () {
+            var decorationResult = decoration.apply(this, arguments);
+            var methodBodyResult = methodBody.apply(this, arguments);
+
+            return typeof methodBodyResult === 'undefined' ? decorationResult : methodBodyResult;
+        };
+    };
+}
+
+function around (decoration) {
+    return function (methodBody) {
+        return function () {
+            return decoration.apply(this, [methodBody].concat([].slice.call(arguments, 0)));
+        };
+    };
+}
+
 module.exports = {
     methodsOfType: methodsOfType,
     isUndefined: isUndefined,
     isntUndefined: isntUndefined,
     isFunction: isFunction,
-    after: after
+    after: after,
+    before: before,
+    around: around,
 };
