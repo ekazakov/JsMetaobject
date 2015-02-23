@@ -213,4 +213,39 @@ describe('Tests', function () {
             expect(tracy.awards()).to.include('Grammy');
         });
     });
+
+    describe('MetaClass', function () {
+        var MetaClass = require('../src/meta-class');
+
+        it('Create new Class object', function () {
+            var Class = MetaClass.create(MetaClass);
+            console.log('Class', Class);
+
+            var BasicObjectClass = Class.create(null);
+
+            var QuadTree = Class.create(BasicObjectClass);
+
+            console.log('BasicObjectClass', BasicObjectClass);
+            console.log('QuadTree', QuadTree);
+            // QuadTree.constructor === Class
+
+            QuadTree
+                .defineMethod('initialize', function (nw, ne, se, sw) {
+                    this.nw = nw;
+                    this.ne = ne;
+                    this.se = se;
+                    this.sw = sw;
+                })
+                .defineMethod('population', function () {
+                    return this.nw.population() + this.ne.population() +
+                        this.se.population() + this.sw.population();
+                })
+            ;
+
+            var tree = QuadTree.create();
+            tree.initialize(1,2,3,4);
+            console.dir(tree);
+            // tree.population();
+        });
+    });
 });
