@@ -9,7 +9,8 @@ module.exports = function(config) {
             'karma-mocha-debug',
             'karma-chai',
             'karma-mocha-reporter',
-            'karma-chrome-launcher'
+            'karma-notify-reporter',
+            'karma-chrome-launcher',
         ],
         // list of files / patterns to load in the browser
         files: [
@@ -18,7 +19,12 @@ module.exports = function(config) {
 
         // test results reporter to use
         // possible values: "dots", "progress", "junit", "growl", "coverage"
-        reporters: ["mocha", 'spec'],
+        reporters: ["mocha", 'spec', 'progress', 'notify'],
+
+        notifyReporter: {
+            reportEachFailure: true, // Default: false, Will notify on every failed sepc
+            reportSuccess: true, // Default: true, Will notify when a suite was successful
+        },
 
         // web server port
         port: 9876,
