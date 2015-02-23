@@ -211,6 +211,7 @@ describe('Tests', function () {
 
             expect(tracy.songs()).to.include('Fast Car');
             expect(tracy.awards()).to.include('Grammy');
+            // throw Error('11');
         });
     });
 
