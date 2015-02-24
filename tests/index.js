@@ -196,7 +196,6 @@ describe('Tests', function () {
             var taylor = Object.create(LoggingSongwriter);
             taylor.constructor();
             expect(taylor.addSong2('foo')).to.equal(true);
-            throw Error('22');
         });
     });
 
