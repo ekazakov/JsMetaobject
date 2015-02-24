@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 function methodsOfType (behaviour, type) {
     return Object.keys(behaviour).filter(function (methodName) {
         return typeof behaviour[methodName] === type;
@@ -46,6 +48,35 @@ function around (decoration) {
     };
 }
 
+
+function nameAndLength (name, length, body) {
+    var paramNames = [ 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+                       'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
+                       'z', 'x', 'c', 'v', 'b', 'n', 'm'];
+
+    var pars = paramNames.slice(0, length);
+    var src = '(function ' + name +
+        ' (' + pars.join(',') + ')' +
+        '{ return body.apply(this, arguments); })';
+
+    return eval(src);
+}
+
+function imitate (exemplar, body) {
+    return nameAndLength(exemplar.name, exemplar.length, body);
+}
+
+function when (guardFn, optionalFn) {
+    return optionalFn == null ? guarded : guarded(optionalFn);
+
+    function guarded (fn) {
+        return imitate(fn, function () {
+            if (guardFn.apply(this, arguments))
+                return fn.apply(this, arguments);
+        });
+    }
+}
+
 module.exports = {
     methodsOfType: methodsOfType,
     isUndefined: isUndefined,
@@ -54,4 +85,7 @@ module.exports = {
     after: after,
     before: before,
     around: around,
+    imitate: imitate,
+    nameAndLength: nameAndLength,
+    when: when,
 };

@@ -249,4 +249,23 @@ describe('Tests', function () {
             // tree.population();
         });
     });
+
+    describe('Predicate dispatch', function () {
+        var equal = _.curry(_.isEqual, 2);
+        var Match = require('../src/match');
+        var when = require('../src/utils').when;
+
+        it('works', function () {
+            var test = Match(
+                when(equal(1), function one () { return 'One'; }),
+                when(equal(2), function two () { return 'Two'; }),
+                function other () { return 'Other'; }
+            );
+
+            expect(test(1)).to.equal("One");
+            expect(test(2)).to.equal("Two");
+            expect(test(3)).to.equal("Other");
+        });
+
+    });
 });
