@@ -266,6 +266,25 @@ describe('Tests', function () {
             expect(test(2)).to.equal("Two");
             expect(test(3)).to.equal("Other");
         });
+    });
 
+    describe('Multiple dispatch', function () {
+        var utils = require('../src/utils');
+        var whenArgsAre = utils.whenArgsAre;
+        var Match = require('../src/match');
+
+        it('test it', function () {
+            var equal = _.curry(_.isEqual, 2);
+
+            var test = Match(
+                whenArgsAre(equal('A'), equal('B'), function (a, b) { return a + b; }),
+                whenArgsAre(equal('C'), equal('D'), equal('G'), function (a, b, g) { return a + b + g; }),
+                whenArgsAre(equal('E'), equal('F'), function (a, b) { return a + b; })
+            );
+
+            expect(test('A', 'B')).to.equal('AB');
+            expect(test('C', 'D', 'G')).to.equal('CDG');
+            expect(test('E', 'F')).to.equal('EF');
+        });
     });
 });

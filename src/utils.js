@@ -18,6 +18,22 @@ function isFunction (value) {
     return typeof value === 'function';
 }
 
+function isType (type) {
+    return function (arg) {
+        return typeof arg === type;
+    };
+}
+
+function instanceOf (clazz) {
+    return function (arg) {
+        return arg instanceof clazz;
+    };
+}
+
+function isPrototypeOf (proto) {
+    return Object.prototype.isPrototypeOf.bind(proto);
+}
+
 function after (decoration) {
     return function (methodBody) {
         return function () {
@@ -48,7 +64,6 @@ function around (decoration) {
     };
 }
 
-
 function nameAndLength (name, length, body) {
     var paramNames = [ 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
                        'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
@@ -76,6 +91,27 @@ function when (guardFn, optionalFn) {
         });
     }
 }
+var satisfy = _.curry(function satisfy (fns, arg, index) {
+    return fns[index].call(this, arg);
+});
+
+function whenArgsAre () {
+    var args = _.slice(arguments);
+    var matchers = _.initial(args);
+    var body = _.last(args);
+
+    return imitate(body, typeChecked);
+
+    function typeChecked () {
+        if (arguments.length !== matchers.length) return;
+
+        if (!_.every(arguments, satisfy(matchers))) return;
+
+        var result = body.apply(this, arguments);
+
+        return _.isUndefined(result) ? null : result;
+    }
+}
 
 module.exports = {
     methodsOfType: methodsOfType,
@@ -88,4 +124,5 @@ module.exports = {
     imitate: imitate,
     nameAndLength: nameAndLength,
     when: when,
+    whenArgsAre: whenArgsAre,
 };
