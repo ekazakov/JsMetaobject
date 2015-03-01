@@ -1,15 +1,61 @@
 var _ = require('lodash');
 var chai = require('chai');
+
 var expect = chai.expect;
 var encapsulate = require('../src/encapsulate');
 var orderProtocol = require('../src/order-protocol');
 var orderProtocol2 = require('../src/order-protocol2');
-var composeMetaobjects = require('../src/compose-meta-objects');
+var composeMetaobjects = require('../src/compose-meta-objects').composeMetaobjects;
+var propertiesToArrays = require('../src/compose-meta-objects').propertiesToArrays;
 
 var HasAwards = require('../src/objects/has-awards');
 var SingsSongs = require('../src/objects/sings-songs');
+var policies = require('../src/policies');
 
 describe('Tests', function () {
+
+    describe('Conflict detection', function () {
+        var objects = [
+            {foo: sinon.spy(), bar: sinon.spy(), baz: sinon.spy()},
+            {foo: sinon.spy(), baz: sinon.spy()},
+            {foo: sinon.spy(), qux: sinon.spy()},
+            {qoo: sinon.spy()},
+        ];
+
+        it('detect conflicts and create conflict scheme', function () {
+            var conflictsShema = propertiesToArrays(objects);
+
+            console.log('conflictsShema', conflictsShema);
+            expect(conflictsShema).to.have.all.keys(['foo', 'bar', 'baz', 'qux', 'qoo']);
+
+            expect(conflictsShema.foo).to.be.instanceof(Array);
+            expect(conflictsShema.baz).to.be.instanceof(Array);
+            expect(conflictsShema.bar).to.be.instanceof(Array);
+            expect(conflictsShema.qux).to.be.instanceof(Array);
+            expect(conflictsShema.qoo).to.be.instanceof(Array);
+
+            expect(conflictsShema.foo.length).to.be.equal(3);
+            expect(conflictsShema.baz.length).to.be.equal(2);
+            expect(conflictsShema.bar.length).to.be.equal(1);
+            expect(conflictsShema.qoo.length).to.be.equal(1);
+            expect(conflictsShema.qux.length).to.be.equal(1);
+        });
+    });
+
+    describe('Conflict resoulution policies', function () {
+        var f1 = function () { return 'f1'; };
+        var f2 = function () { return 'f2'; };
+        var f3 = function () { return 'f3'; };
+
+        it('overwrite', function () {
+            var f = policies.overwrite(f1, f2);
+            expect(f).to.equal(f1);
+        });
+
+        it('discard', function () {
+
+        });
+    });
 
     describe('AwardWinningSongwriter', function() {
         var AwardWinningSongwriter;
@@ -61,7 +107,6 @@ describe('Tests', function () {
             expect(bewitched.description()).eql('Samantha Stephens is a Thaumaturge');
         });
     });
-
 
     describe('Subscribe to Songwriter', function () {
         var Subscribable = require('../src/objects/subscribable');
@@ -156,7 +201,6 @@ describe('Tests', function () {
             expect(names.filter(select).length).to.equal(2);
         });
     });
-
 
     describe('Fluent by default', function () {
         var fluentByDefault = require('../src/fluent-by-default');
