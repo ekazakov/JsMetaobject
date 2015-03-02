@@ -7,6 +7,9 @@ var orderProtocol = require('../src/order-protocol');
 var orderProtocol2 = require('../src/order-protocol2');
 var composeMetaobjects = require('../src/compose-meta-objects').composeMetaobjects;
 var propertiesToArrays = require('../src/compose-meta-objects').propertiesToArrays;
+var inverse = require('../src/compose-meta-objects').inverse;
+var composeWithResolution = require('../src/compose-meta-objects').composeWithResolution;
+var dumbs = require('./conflict-dumbs');
 
 var HasAwards = require('../src/objects/has-awards');
 var SingsSongs = require('../src/objects/sings-songs');
@@ -39,6 +42,27 @@ describe('Tests', function () {
             expect(conflictsShema.bar.length).to.be.equal(1);
             expect(conflictsShema.qoo.length).to.be.equal(1);
             expect(conflictsShema.qux.length).to.be.equal(1);
+        });
+    });
+
+    describe('composeWithResolution', function () {
+        var Foo = dumbs.Foo;
+        var Bar = dumbs.Bar;
+        sinon.spy(Foo, 'init');
+        sinon.spy(Bar, 'init');
+
+
+        var Foo1 = encapsulate(Foo);
+        var Bar1 = encapsulate(Bar);
+
+        it('after', function () {
+            var Meta = composeWithResolution([Foo1, Bar1], {after: 'init'});
+            var meta = Object.create(Meta);
+
+            meta.init({});
+            expect(Foo.init.calledOnce).to.be.true;
+            expect(Bar.init.calledOnce).to.be.true;
+            expect(Foo.init.calledAfter(Bar.init)).to.be.true;
         });
     });
 

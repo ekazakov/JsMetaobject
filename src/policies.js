@@ -1,29 +1,38 @@
 var _ = require('lodash');
+var exec = _.curry(function exec (context, args, fn) {
+    return fn.apply(context, args);
+});
 
 module.exports = {
-    overwrite: function overwrite (fn1, fn2) {
-        return fn1;
+    overwrite: function overwrite () {
+        return arguments[0];
     },
 
-    discard: function discard (fn1, fn2) {
-        return fn2;
+    discard: function discard () {
+        return _(arguments).slice(-1).first();
     },
 
-    before: function before (fn1, fn2) {
+    before: function before () {
+        var fns = _.slice(arguments);
+
         return function () {
-            var fn1Result = fn1.apply(this, arguments);
-            var fn2Result = fn2.apply(this, arguments);
-
-            return !_.isUndefined(fn2Result) ? fn2Result : fn1Result;
+            return _(fns)
+                .map(exec(this, arguments))
+                .filter(_.negate(_.isUndefined))
+                .first()
+            ;
         };
     },
 
-    after: function after (fn1, fn2) {
-        return function () {
-            var fn2Result = fn2.apply(this, arguments);
-            var fn1Result = fn1.apply(this, arguments);
+    after: function after () {
+        var fns = _.slice(arguments);
 
-            return !_.isUndefined(fn2Result) ? fn2Result : fn1Result;
+        return function () {
+            return _(fns.reverse())
+                .map(exec(this, arguments))
+                .filter(_.negate(_.isUndefined))
+                .first()
+            ;
         };
     },
 

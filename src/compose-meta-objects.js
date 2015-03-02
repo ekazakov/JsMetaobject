@@ -1,11 +1,12 @@
 var utils = require('./utils');
 var _ = require('lodash');
+var policies = require('./policies');
 
 var isFunction = utils.isFunction;
 var isUndefined = utils.isUndefined;
 var isntUndefined = utils.isntUndefined;
 
-function inverse (hash, policies) {
+function inverse (hash) {
     return Object.keys(hash).reduce(function (inversion, policyName) {
         var methodNameOrNames = hash[policyName];
         var methodName;
@@ -75,10 +76,34 @@ function composeMetaobjects (protocol) {
     return applyProtocol(resolved, protocol);
 }
 
+function resolve (conflictsShema, policiesSchema) {
+    var defaultPolicy = policies['before'];
+
+    return Object.keys(conflictsShema).reduce(function (meta, fnName) {
+        var policyFn = policiesSchema[fnName] || defaultPolicy;
+
+        if (conflictsShema[fnName].length === 1) {
+            meta[fnName] = conflictsShema[fnName][0];
+        } else {
+            meta[fnName] = policyFn.apply(this, conflictsShema[fnName]);
+        }
+        return meta;
+    }, Object.create(null));
+}
+
+function composeWithConflictResolution (metaobjects, policiesSchema) {
+    var conflictsShema = propertiesToArrays(metaobjects);
+    policiesSchema = inverse(policiesSchema);
+
+    console.log('schema', policiesSchema);
+    return resolve(conflictsShema, policiesSchema);
+}
+
 module.exports = {
     inverse: inverse,
     propertiesToArrays: propertiesToArrays,
     resolveUndefineds: resolveUndefineds,
     applyProtocol: applyProtocol,
     composeMetaobjects: composeMetaobjects,
+    composeWithResolution: composeWithConflictResolution
 };
