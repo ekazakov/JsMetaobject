@@ -75,6 +75,7 @@ function composeMetaobjects (protocol) {
     return applyProtocol(resolved, protocol);
 }
 
+
 module.exports = {
     inverse: inverse,
     propertiesToArrays: propertiesToArrays,
