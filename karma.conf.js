@@ -2,16 +2,16 @@ module.exports = function(config) {
     config.set({
 
         // frameworks to use
-        frameworks: ['mocha', 'chai', 'sinon'],
+        frameworks: ['mocha', 'chai-sinon', 'sinon'],
 
-        plugins: [
-            'karma-mocha',
-            'karma-chai',
-            'karma-mocha-reporter',
-            'karma-notify-reporter',
-            'karma-chrome-launcher',
-            'karma-sinon'
-        ],
+        // plugins: [
+        //     'karma-mocha',
+        //     'karma-chai',
+        //     'karma-mocha-reporter',
+        //     'karma-notify-reporter',
+        //     'karma-chrome-launcher',
+        //     'karma-sinon'
+        // ],
 
         // list of files / patterns to load in the browser
         files: [

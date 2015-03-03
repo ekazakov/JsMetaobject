@@ -24,6 +24,7 @@
     "gulp-util": "^3.0.3",
     "karma": "^0.12.31",
     "karma-chai": "^0.1.0",
+    "karma-chai-sinon": "^0.1.4",
     "karma-chrome-launcher": "^0.1.7",
     "karma-mocha": "^0.1.10",
     "karma-notify-reporter": "^0.1.1",
@@ -31,6 +32,7 @@
     "lodash": "^3.2.0",
     "mocha": "^2.1.0",
     "sinon": "^1.12.2",
+    "sinon-chai": "^2.7.0",
     "vinyl-transform": "^1.0.0",
     "watchify": "^2.3.0"
   }

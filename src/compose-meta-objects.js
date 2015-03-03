@@ -6,17 +6,17 @@ var isFunction = utils.isFunction;
 var isUndefined = utils.isUndefined;
 var isntUndefined = utils.isntUndefined;
 
-function inverse (hash) {
+function inversePoliciesSchema (hash) {
     return Object.keys(hash).reduce(function (inversion, policyName) {
         var methodNameOrNames = hash[policyName];
         var methodName;
 
         if (_.isString(methodNameOrNames)) {
             methodName = methodNameOrNames;
-            inversion[methodName] = policies[policyName];
+            inversion[methodName] = policyName;
         } else if (_.isArray(methodNameOrNames)) {
             _.each(methodNameOrNames, function (methodName) {
-                inversion[methodName] = policies[policyName];
+                inversion[methodName] = policyName;
             });
         }
 
@@ -77,10 +77,11 @@ function composeMetaobjects (protocol) {
 }
 
 function resolve (conflictsShema, policiesSchema) {
-    var defaultPolicy = policies['before'];
+    var defaultPolicy = policies.before;
 
     return Object.keys(conflictsShema).reduce(function (meta, fnName) {
-        var policyFn = policiesSchema[fnName] || defaultPolicy;
+        var policy = policiesSchema[fnName];
+        var policyFn = policies[policy] || defaultPolicy;
 
         if (conflictsShema[fnName].length === 1) {
             meta[fnName] = conflictsShema[fnName][0];
@@ -93,14 +94,13 @@ function resolve (conflictsShema, policiesSchema) {
 
 function composeWithConflictResolution (metaobjects, policiesSchema) {
     var conflictsShema = propertiesToArrays(metaobjects);
-    policiesSchema = inverse(policiesSchema);
+    policiesSchema = inversePoliciesSchema(policiesSchema);
 
-    console.log('schema', policiesSchema);
     return resolve(conflictsShema, policiesSchema);
 }
 
 module.exports = {
-    inverse: inverse,
+    inversePoliciesSchema: inversePoliciesSchema,
     propertiesToArrays: propertiesToArrays,
     resolveUndefineds: resolveUndefineds,
     applyProtocol: applyProtocol,

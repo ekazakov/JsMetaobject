@@ -1,13 +1,13 @@
 var _ = require('lodash');
-var chai = require('chai');
+// var chai = require('chai');
 
-var expect = chai.expect;
+// var expect = chai.expect;
 var encapsulate = require('../src/encapsulate');
 var orderProtocol = require('../src/order-protocol');
 var orderProtocol2 = require('../src/order-protocol2');
 var composeMetaobjects = require('../src/compose-meta-objects').composeMetaobjects;
 var propertiesToArrays = require('../src/compose-meta-objects').propertiesToArrays;
-var inverse = require('../src/compose-meta-objects').inverse;
+var inversePoliciesSchema = require('../src/compose-meta-objects').inversePoliciesSchema;
 var composeWithResolution = require('../src/compose-meta-objects').composeWithResolution;
 var dumbs = require('./conflict-dumbs');
 
@@ -60,9 +60,9 @@ describe('Tests', function () {
             var meta = Object.create(Meta);
 
             meta.init({});
-            expect(Foo.init.calledOnce).to.be.true;
-            expect(Bar.init.calledOnce).to.be.true;
-            expect(Foo.init.calledAfter(Bar.init)).to.be.true;
+            expect(Foo.init).to.be.calledOnce;
+            expect(Bar.init).to.be.calledOnce;
+            expect(Foo.init).to.have.been.calledAfter(Bar.init);
         });
     });
 
