@@ -1,8 +1,6 @@
 var _ = require('lodash');
-var methodsOfType = require('./utils').methodsOfType;
 
 function proxy (baseObject, methods, optionalPrototype) {
-
     if (arguments.length === 2) {
         if (!_.isArray(methods) && _.isObject(methods)) {
             optionalPrototype = methods;
