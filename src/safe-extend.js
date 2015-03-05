@@ -1,50 +1,77 @@
 var _ = require('lodash');
 var proxy = require('./proxy');
 
-var __safekeeping__ = 0;
+var privateStateId = 0;
 
-function getContext (receiver, safekeeping, mixin) {
-    if (receiver['__' + safekeeping + '__'] == null) {
+function getSafekeepingName (id) {
+    return '__' + id + '__';
+}
 
-        var proxyObject = proxy(receiver, ['methodA1']);
+function getContext (receiver, safekeepingName, mixin) {
+    var context = receiver[safekeepingName];
 
-        Object.defineProperty(receiver, '__' + safekeeping + '__', {
-            value: proxyObject,
+    if (context == null) {
+        var proto = privateMethods(mixin).reduce(function (acc, methodName) {
+            acc[methodName] = mixin[methodName];
+            return acc;
+        }, {});
+
+        context = proxy(receiver,
+                        mixin.dependencies,//_.compact([].concat(mixin.dependencies, publicMethods(mixin))),
+                        proto
+                       );
+
+        Object.defineProperty(receiver, safekeepingName, {
+            value: context,
             enumerable: false,
-            writable: true
+            writable: false
         });
-
-        return proxyObject;
     }
 
-    return receiver['__' + safekeeping + '__'];
+    return context;
+}
+
+function isPrivateMethod (methodName) {return methodName[0] === '_';}
+
+function isPublicMethod (methodName) { return methodName[0] !== '_'; }
+
+function methodFilter (predicate) {
+    return function (object) {
+        return _(object).
+            methods().
+            filter(predicate).
+            value()
+        ;
+    };
+}
+
+var publicMethods = methodFilter(isPublicMethod);
+var privateMethods = methodFilter(isPrivateMethod);
+
+function extendInternal () {
+    return function (acc, mixin) {
+        privateStateId++;
+        return publicMethods(mixin)
+            .reduce(function (metaobject, method) {
+                var safekeepingName = getSafekeepingName(privateStateId);
+
+                metaobject[method] = function wrapper () {
+                    var privateContext = getContext(this, safekeepingName, mixin);
+                    var result = mixin[method].apply(privateContext, arguments);
+
+                    return result === privateContext ? this : result;
+                };
+
+                return metaobject;
+            }, acc);
+    };
 }
 
 function extend (receiver) {
     var mixins = _.slice(arguments, 1);
 
-    return mixins.reduce(function (acc, mixin) {
-        return compose(receiver, mixin, acc);
-    }, receiver);
+    return mixins.reduce(extendInternal(), receiver);
 
-    function compose (receiver, mixin, acc) {
-        __safekeeping__++;
-
-        var methods = Object.keys(mixin);
-        return methods
-            .reduce(function (metaobject, method) {
-                (function (safekeeping) {
-                    metaobject[method] = function () {
-                        var privateContext = getContext(this, safekeeping, mixin);
-                        var result = mixin[method].apply(privateContext, arguments);
-
-                        return result === privateContext ? this : result;
-                    };
-                })(__safekeeping__);
-
-                return metaobject;
-            }, acc);
-    }
 }
 
 module.exports = extend;

@@ -33,4 +33,27 @@ function proxy (baseObject, methods, optionalPrototype) {
 
 }
 
-module.exports = proxy;
+function proxy2 (baseObject, methods, optionalPrototype) {
+    var methodName;
+    var proxyObject = Object.create(optionalPrototype || null);
+
+    for (methodName in baseObject) {
+        (function (methodName) {
+            if (!_.isFunction(baseObject[methodName])) return;
+
+            if (_.isArray(methods) && methods.length > 0) {
+                if (!_.contains(methods, methodName)) return;
+            }
+
+            proxyObject[methodName] = function () {
+                var result = baseObject[methodName].apply(baseObject, arguments);
+
+                return result === baseObject ? proxyObject : result;
+            };
+        }(methodName));
+    }
+
+    return proxyObject;
+}
+
+module.exports = proxy2;

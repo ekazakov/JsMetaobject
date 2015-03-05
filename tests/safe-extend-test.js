@@ -3,13 +3,23 @@ var _ = require('lodash');
 var ModelA = {
     setMessage: function (msg) {
         this._msg = msg;
+        this.methodA2();
     },
+
+    methodA2: function () {},
+
     methodA1: function () {
-        return this._msg;
+        return this._capitalize();
+    },
+
+    _capitalize: function () {
+        return this._msg.toUpperCase();
     }
 };
 
 var ModelB = {
+    dependencies: ['methodA1'],
+
     methodB1: function () {
         return 'methodB1 called and ' + this.methodA1();
     },
@@ -21,7 +31,6 @@ var ModelB = {
 
 describe('Extedn with safekeeping context', function () {
     var extendWithProxy = require('../src/safe-extend');
-    var extend = require('../src/extend-with-proxy');
 
     var Meta = extendWithProxy({}, ModelA, ModelB);
     var meta;
@@ -30,6 +39,7 @@ describe('Extedn with safekeeping context', function () {
         meta = Object.create(Meta);
     });
 
+    // var extend = require('../src/extend-with-proxy');
     // it('ll', function () {
     //     var A = extend({}, ModelA);
     //     var B = extend({}, _.assign({}, ModelB, {methodA1: undefined}));
@@ -43,13 +53,14 @@ describe('Extedn with safekeeping context', function () {
     // });
 
     it('Call method from other mixin', function () {
-        console.log(meta);
         expect(meta).to.respondTo('setMessage');
         expect(meta).to.respondTo('methodA1');
         expect(meta).to.respondTo('methodB1');
 
         meta.setMessage('methodA1 called!');
-        expect(meta.methodB1()).to.be.equal('methodB1 called and methodA1 called!');
+        meta.methodA1();
+        expect(meta.methodB1()).to.be.equal('methodB1 called and METHODA1 CALLED!');
+        console.log(meta);
     });
 
     it('Doesn\'t expose private state', function () {
@@ -61,7 +72,7 @@ describe('Extedn with safekeeping context', function () {
         var meta2 = Object.create(Meta);
 
         meta1.setMessage('Hello!');
-        expect(meta1.methodA1()).to.be.equal('Hello!');
-        expect(meta2.methodA1()).to.be.undefined;
+        expect(meta1.methodA1()).to.be.equal('HELLO!');
+        expect(meta2.methodA1).to.throw(Error);
     });
 });
