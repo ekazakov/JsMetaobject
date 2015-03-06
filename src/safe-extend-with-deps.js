@@ -29,9 +29,9 @@ function createContext (receiver, mixin) {
     var proto = privateMethods(mixin).reduce(function (acc, methodName) {
         acc[methodName] = mixin[methodName];
         return acc;
-    }, Object.create(null));
+    }, {});
 
-    var methods = [].concat(mixin.dependencies, publicMethods(mixin));
+    var methods = _.compact([].concat(mixin.dependencies, publicMethods(mixin)));
 
     return proxy(receiver, methods, proto);
 }

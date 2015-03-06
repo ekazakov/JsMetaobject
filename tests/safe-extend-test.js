@@ -1,5 +1,27 @@
 var _ = require('lodash');
 
+
+describe('Bad Hobbit sample', function () {
+    var extendWithProxy = require('../src/safe-extend');
+    var M = require('./models/hobbits');
+
+    var Hobbit = extendWithProxy({}, M.Person, M.Profession, M.RingKeeper);
+
+    it('works', function () {
+        var bilbo = Object.create(Hobbit);
+        bilbo.setName('Bilbo Baggins');
+        bilbo.setProfession('Burglar');
+        expect(bilbo.description()).to.be.equal('Bilbo Baggins the Burglar');
+        expect(bilbo.disappear.bind(bilbo)).to.not.throw(Error);
+
+        var frodo = Object.create(Hobbit);
+        console.log('bilbo', bilbo);
+        console.log('frodo', frodo);
+        expect(frodo.name()).to.be.undefined;
+        expect(frodo.profession()).to.be.undefined;
+    });
+});
+
 var ModelA = {
     setMessage: function (msg) {
         this._msg = msg;

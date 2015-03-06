@@ -1,47 +1,31 @@
 var _ = require('lodash');
 
-var Person = {
-    setName: function (name) {
-        this._name = name;
-    },
+describe('Good Hobbit sample', function () {
+    var extendWithProxy = require('../src/safe-extend-with-deps');
+    var M = require('./models/hobbits');
 
-    name: function () {
-        return this._name;
-    },
-
-    description: function () {
-        return this.name() + ' the ' + this.profession();
-    }
-};
-
-var Profession = {
-    setProfession: function (profession) {
-        this._profession = profession;
-    },
-
-    profession: function () {
-        return this._profession;
-    }
-};
-
-describe('Profession sample', function () {
-    var extendWithProxy = require('../src/safe-extend');
-    var Professional = extendWithProxy({}, Person, Profession);
+    var Hobbit = extendWithProxy({},
+                                 M.Profession,
+                                 _.assign({}, M.Person, {
+                                     dependencies: ['profession']
+                                 })
+                                 , M.RingKeeper
+                                );
 
     it('works', function () {
-        var bilbo = Object.create(Professional);
+        var bilbo = Object.create(Hobbit);
         bilbo.setName('Bilbo Baggins');
         bilbo.setProfession('Burglar');
         expect(bilbo.description()).to.be.equal('Bilbo Baggins the Burglar');
+        expect(bilbo.disappear.bind(bilbo)).to.not.throw(Error);
 
-        var frodo = Object.create(Professional);
+        var frodo = Object.create(Hobbit);
         console.log('bilbo', bilbo);
         console.log('frodo', frodo);
         expect(frodo.name()).to.be.undefined;
         expect(frodo.profession()).to.be.undefined;
     });
 });
-
 
 var ModelA = {
     setMessage: function (msg) {

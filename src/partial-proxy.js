@@ -33,11 +33,11 @@ module.exports = function proxy (baseObject, methods, optionalPrototype) {
     var proxyObject = Object.create(optionalPrototype || null);
 
     return methods.reduce(function (metaobject, methodName) {
-        metaobject[methodName] = function () {
+        metaobject[methodName] = function proxyWrapper () {
             var result = baseObject[methodName].apply(baseObject, arguments);
             return result === baseObject ? proxyObject : result;
         };
 
         return metaobject;
     }, proxyObject);
-}
+};

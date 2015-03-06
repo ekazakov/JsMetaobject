@@ -1,7 +1,6 @@
 var proxy = require('../src/partial-proxy');
 
 describe('Proxy', function () {
-
     it('Create proxy around object', function () {
         var mixin = {foo: sinon.spy()};
         var p = proxy(mixin);
