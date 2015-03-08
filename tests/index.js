@@ -5,4 +5,5 @@ describe('Tests', function () {
     require('./simple-extend-with-proxy');
     require('./safe-extend-test');
     require('./safe-extend-with-deps-test');
+    require('./conflict-resolution-test');
 });

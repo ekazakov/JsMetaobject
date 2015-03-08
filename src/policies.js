@@ -36,10 +36,21 @@ module.exports = {
         };
     },
 
-    around: function around (fn1, fn2) {
+    around: function around () {
+        var fns = _.slice(arguments);
+        var fn = fns.shift();
+
+        fns = fns.map(bindWith(this));
+
         return function () {
-            var argArray = [fn2.bind(this)].concat(_.slice(arguments));
-            return fn1.apply(this, argArray);
+            var argArray = [fns].concat(_.slice(arguments));
+            return fn.apply(this, argArray);
         };
+
+        function bindWith(context) {
+            return function (fn) {
+                return fn.bind(context);
+            };
+        }
     }
 };

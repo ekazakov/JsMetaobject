@@ -20,7 +20,7 @@ function isEmptyArray (obj) {
     return _.isArray(obj) && _.isEmpty(obj);
 }
 
-module.exports = function proxy (baseObject, methods, optionalPrototype) {
+function proxy (baseObject, methods, optionalPrototype) {
     if (arguments.length === 2 && notArrayButObject(methods)) {
         optionalPrototype = methods;
         methods = null;
@@ -40,4 +40,6 @@ module.exports = function proxy (baseObject, methods, optionalPrototype) {
 
         return metaobject;
     }, proxyObject);
-};
+}
+
+module.exports = proxy;
